@@ -72,6 +72,7 @@ io.on('connection', (socket) => {
         } else {
             socket.broadcast.to(data.userId).emit('decision', { accepted: false });
         }
+        photoReviewStack = photoReviewStack.filter(photo => photo.id !== data.userId);
     });
 
     socket.on('requestPhotoStack', () => {
@@ -83,5 +84,6 @@ const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 
 
