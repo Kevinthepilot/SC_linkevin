@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Người chơi</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+    }
+    h1 {
+        margin-bottom: 20px;
+        color: #ffcc00;
+    }
+    #wantedInfo {
+        background: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 20px;
+        display: inline-block;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    #wantedImg {
+        border-radius: 10px;
+        max-width: 200px;
+        display: block;
+        margin: 0 auto 10px;
+    }
+    .upload-box {
+        margin-top: 20px;
+        padding: 20px;
+        border: 2px dashed #ffcc00;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: 0.3s;
+        max-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .upload-box:hover {
+        background: rgba(255,255,255,0.05);
+        transform: scale(1.02);
+    }
+    #photoInput {
+        display: none;
+    }
+    .preview-img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin-top: 10px;
+        display: none;
+    }
+    button {
+        background: #ffcc00;
+        color: #000;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        margin-top: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    button:hover {
+        background: #e6b800;
+    }
+    #result {
+        margin-top: 20px;
+        font-size: 1.2em;
+    }
+</style>
+</head>
+<body>
+    <h1>Đối tượng bị truy nã</h1>
+    <div id="wantedInfo">
+        <img id="wantedImg" src="" alt="Wanted Person">
+        <h2 id="wantedName"></h2>
+    </div>
+
+    <div class="upload-box" onclick="document.getElementById('photoInput').click()">
+        📷 Nhấn để chọn ảnh
+        <input type="file" id="photoInput" accept="image/*" onchange="previewImage(event)">
+        <img id="preview" class="preview-img">
+    </div>
+
+    <button onclick="sendPhoto()">Gửi ảnh</button>
+    <h2 id="result"></h2>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('updateWanted', (wanted) => {
+            document.getElementById('wantedImg').src = wanted.img;
+            document.getElementById('wantedName').innerText = wanted.name;
+        });
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function sendPhoto() {
+            const file = document.getElementById('photoInput').files[0];
+            if (!file) return alert("Chọn ảnh!");
+            const formData = new FormData();
+            formData.append("photo", file);
+            fetch(`/upload?socketId=${socket.id}`, {
+                method: "POST",
+                body: formData
+            }).then(res => res.json())
+              .then(data => {
+                  if (data.success) alert("✅ Đã gửi ảnh thành công!");
+                  else alert("❌ Gửi thất bại!");
+              });
+        }
+
+        socket.on('decision', (data) => {
+            if (data.accepted) {
+                document.getElementById('result').innerText = "✔ Ảnh đúng! Gợi ý: " + data.hint;
+            } else {
+                document.getElementById('result').innerText = "❌ Ảnh sai!";
+            }
+        });
+    </script>
+</body>
+</html>

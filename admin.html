@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        #photoRequests {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .photo-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .photo-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+        }
+
+        .photo-card img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+
+        .btn {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn-accept {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-accept:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .btn-decline {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-decline:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Bảng Duyệt Ảnh</h1>
+    <div id="photoRequests"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.emit('requestPhotoStack');
+
+        socket.on('photoAdd', (data) => {
+            addPhotoCard(data);
+        });
+
+        socket.on('photoStack', (stack) => {
+            document.getElementById('photoRequests').innerHTML = ""; // Xoá cũ
+            stack.forEach(data => addPhotoCard(data));
+        });
+
+        function addPhotoCard(data) {
+            let div = document.createElement('div');
+            div.classList.add('photo-card');
+            div.id = `photo-${data.id}`;
+            div.innerHTML = `
+                <img src="${data.img}" alt="Ảnh gửi lên">
+                <div>
+                    <button class="btn btn-accept" onclick="accept('${data.id}')">✅ Accept</button>
+                    <button class="btn btn-decline" onclick="decline('${data.id}')">❌ Decline</button>
+                </div>
+            `;
+            document.getElementById('photoRequests').appendChild(div);
+        }
+
+        function accept(userId) {
+            socket.emit('adminDecision', { userId, accepted: true });
+            console.log(userId)
+            document.getElementById(`photo-${userId}`).remove()
+        }
+        function decline(userId) {
+            socket.emit('adminDecision', { userId, accepted: false });
+            document.getElementById(`photo-${userId}`).remove()
+        }
+    </script>
+</body>
+</html>

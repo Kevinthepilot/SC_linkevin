@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chọn Vai Trò</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+            color: gold;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-shadow: 0 0 10px gold, 0 0 20px gold;
+            margin-bottom: 50px;
+            animation: fadeInDown 1s ease-in-out;
+        }
+
+        .role-container {
+            display: flex;
+            gap: 40px;
+            animation: fadeInUp 1.2s ease-in-out;
+        }
+
+        .role-btn {
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            border: 2px solid gold;
+            border-radius: 12px;
+            background: rgba(255, 215, 0, 0.1);
+            color: gold;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 215, 0, 0.3);
+            transition: left 0.3s ease;
+        }
+
+        .role-btn:hover::before {
+            left: 0;
+        }
+
+        .role-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px gold;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 0.9rem;
+            color: #ccc;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚨 Chọn Vai Trò 🚨</h1>
+    <div class="role-container">
+        <button class="role-btn" onclick="location.href='user'">👤 Người Chơi</button>
+        <button class="role-btn" onclick="chooseAdmin()">🛡 Admin</button>
+    </div>
+    <footer>© 2025 Wanted Game</footer>
+
+    <script>
+        function chooseAdmin() {
+            let pass = prompt("🔐 Nhập mật khẩu admin:");
+            if (pass === "123456") {
+                location.href = "admin";
+            } else {
+                alert("❌ Sai mật khẩu!");
+            }
+        }
+    </script>
+</body>
+</html>
