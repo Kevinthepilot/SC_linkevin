@@ -35,6 +35,17 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
+        .photo-card img {
+            width: 250px;      /* Fixed width */
+            height: 700px;     /* Fixed height */
+            border-radius: 10px;
+            margin-bottom: 10px;
+            object-fit: cover; /* Keeps aspect ratio while filling the box */
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         .photo-card:hover {
             transform: scale(1.03);
             box-shadow: 0 6px 25px rgba(0,0,0,0.4);
@@ -90,7 +101,7 @@
         });
 
         socket.on('photoStack', (stack) => {
-            document.getElementById('photoRequests').innerHTML = ""; // Xoá cũ
+            document.getElementById('photoRequests').innerText = ""; // Xoá cũ
             stack.forEach(data => addPhotoCard(data));
         });
 
@@ -98,24 +109,39 @@
             let div = document.createElement('div');
             div.classList.add('photo-card');
             div.id = `photo-${data.id}`;
-            div.innerHTML = `
-                <img src="${data.img}" alt="Ảnh gửi lên">
-                <div>
-                    <button class="btn btn-accept" onclick="accept('${data.id}')">✅ Accept</button>
-                    <button class="btn btn-decline" onclick="decline('${data.id}')">❌ Decline</button>
-                </div>
-            `;
+
+            let img = document.createElement('img');
+            img.src = data.img;
+            img.alt = 'Ảnh gửi lên';
+
+            let btnContainer = document.createElement('div');
+
+            let btnAccept = document.createElement('button');
+            btnAccept.classList.add('btn', 'btn-accept');
+            btnAccept.textContent = '✅ Accept';
+            btnAccept.onclick = () => accept(data.id, data.reqId);
+
+            let btnDecline = document.createElement('button');
+            btnDecline.classList.add('btn', 'btn-decline');
+            btnDecline.textContent = '❌ Decline';
+            btnDecline.onclick = () => decline(data.id, data.reqId);
+
+            btnContainer.appendChild(btnAccept);
+            btnContainer.appendChild(btnDecline);
+
+            div.appendChild(img);
+            div.appendChild(btnContainer);
+
             document.getElementById('photoRequests').appendChild(div);
         }
 
-        function accept(userId) {
-            socket.emit('adminDecision', { userId, accepted: true });
+        function accept(userId, requestId) {
+            socket.emit('adminDecision', { userId, requestId, accepted: true });
             console.log(userId)
-            document.getElementById(`photo-${userId}`).remove()
         }
-        function decline(userId) {
-            socket.emit('adminDecision', { userId, accepted: false });
-            document.getElementById(`photo-${userId}`).remove()
+        function decline(userId, requestId) {
+            socket.emit('adminDecision', { userId, requestId, accepted: false });
+            console.log(userId)
         }
     </script>
 </body>

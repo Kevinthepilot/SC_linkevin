@@ -4,7 +4,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const path = require('path');
 const multer = require('multer');
-const fs = require('fs');
+const { v4: uuidv4 } = require('uuid'); 
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -50,12 +50,14 @@ setInterval(() => {
 // Upload route
 app.post('/upload', upload.single('photo'), (req, res) => {
     const fileUrl = `/uploads/${req.file.filename}`;
+    const photoId = uuidv4();
     const photoData = { 
         id: req.query.socketId,
+        reqId: photoId,
         img: fileUrl
     };
     photoReviewStack.push(photoData);
-    io.emit('photoAdd', photoData);
+    io.emit('photoStack', photoReviewStack);
     res.json({ success: true });
 });
 
@@ -72,7 +74,8 @@ io.on('connection', (socket) => {
         } else {
             socket.broadcast.to(data.userId).emit('decision', { accepted: false });
         }
-        photoReviewStack = photoReviewStack.filter(photo => photo.id !== data.userId);
+        photoReviewStack = photoReviewStack.filter(photo => photo.reqId !== data.requestId);
+        socket.emit('photoStack', photoReviewStack);
     });
 
     socket.on('requestPhotoStack', () => {

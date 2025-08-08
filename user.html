@@ -119,10 +119,12 @@
                 method: "POST",
                 body: formData
             }).then(res => res.json())
-              .then(data => {
-                  if (data.success) alert("✅ Đã gửi ảnh thành công!");
-                  else alert("❌ Gửi thất bại!");
-              });
+            .then(data => {
+                if (data.success) alert("✅ Đã gửi ảnh thành công!");
+                else alert("❌ Gửi thất bại!");
+            });
+            document.getElementById("photoInput").value = null;
+            document.getElementById("preview").src = null;
         }
 
         socket.on('decision', (data) => {
