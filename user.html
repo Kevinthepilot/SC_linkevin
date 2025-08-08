@@ -70,6 +70,7 @@
     #result {
         margin-top: 20px;
         font-size: 1.2em;
+        text-align: center;
     }
 </style>
 </head>
@@ -128,11 +129,13 @@
         }
 
         socket.on('decision', (data) => {
-            if (data.accepted) {
-                document.getElementById('result').innerText = "✔ Ảnh đúng! Gợi ý: " + data.hint;
-            } else {
-                document.getElementById('result').innerText = "❌ Ảnh sai!";
+            repText = "✔ Ảnh đúng! Gợi ý: " + data.hint;
+            if (!data.accepted){
+                repText = "❌ Ảnh sai!";
             }
+            let rdiv = document.createElement("div");
+            rdiv.innerText = repText
+            document.getElementById("result").append(rdiv)
         });
     </script>
 </body>
