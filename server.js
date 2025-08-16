@@ -40,7 +40,7 @@ let wantedList = [
     { name: "Nguyễn Ngọc Linh", img: "/wanted-images/wanted5.jpg", hint: "23116ANHOI123" },
     { name: "Nguyễn Lê Uyên Nhi", img: "/wanted-images/wanted6.jpg", hint: "23AN123" },
     { name: "Trần Ngọc Khánh", img: "/wanted-images/wanted7.jpg", hint: "26105ICHOI123" },
-    { name: "Nguyễn Minh Quân", img: "/wanted-images/wanted8.jpg", hint: "4MONK123" },
+    { name: "Nguyễn Minh Võ Quân", img: "/wanted-images/wanted8.jpg", hint: "4MONK123" },
 ];
 
 // Đổi đối tượng mỗi 15s
