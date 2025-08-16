@@ -33,21 +33,32 @@ app.get('/admin', (req, res) => {
 
 // Wanted list
 let wantedList = [
-    { name: "Nguyễn Văn A", img: "/wanted-images/wanted1.jpg", hint: "Thường xuất hiện ở công viên." },
-    { name: "Trần Văn B", img: "/wanted-images/wanted2.jpg", hint: "Hay ghé quán cà phê gần hồ." },
-    { name: "Lê Văn C", img: "/wanted-images/wanted3.jpg", hint: "Thích ăn bún bò." }
+    { name: "Phạm Gia Phát", img: "/wanted-images/wanted4.jpg", hint: "23116ANHOI123" },
+    { name: "Nguyễn Bá Hoài Văn", img: "/wanted-images/wanted2.jpg", hint: "23AN123" },
+    { name: "Bùi Nhất Bảo Long", img: "/wanted-images/wanted1.jpg", hint: "26105ICHOI123" },
+    { name: "Trương Phú Ninh", img: "/wanted-images/wanted3.jpg", hint: "4MONK123" },
+    { name: "Nguyễn Ngọc Linh", img: "/wanted-images/wanted5.jpg", hint: "23116ANHOI123" },
+    { name: "Nguyễn Lê Uyên Nhi", img: "/wanted-images/wanted6.jpg", hint: "23AN123" },
+    { name: "Trần Ngọc Khánh", img: "/wanted-images/wanted7.jpg", hint: "26105ICHOI123" },
+    { name: "Nguyễn Minh Quân", img: "/wanted-images/wanted8.jpg", hint: "4MONK123" },
 ];
-let currentIndex = 0;
-let currentWanted = wantedList[currentIndex];
 
 // Đổi đối tượng mỗi 15s
+function getRandomElements(arr, n) {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, n);
+}
+let currentIndex = 0;
+let currentWanted = getRandomElements(wantedList,4);
+
 setInterval(() => {
     currentIndex = (currentIndex + 1) % wantedList.length;
-    currentWanted = wantedList[currentIndex];
+    currentWanted = getRandomElements(wantedList, 4);
     io.emit('updateWanted', currentWanted);
 }, 15000);
 
 // Upload route
+let imgHistory = []
 app.post('/upload', upload.single('photo'), (req, res) => {
     const fileUrl = `/uploads/${req.file.filename}`;
     const photoId = uuidv4();
@@ -56,9 +67,15 @@ app.post('/upload', upload.single('photo'), (req, res) => {
         reqId: photoId,
         img: fileUrl
     };
-    photoReviewStack.push(photoData);
-    io.emit('photoStack', photoReviewStack);
-    res.json({ success: true });
+    if (!imgHistory.includes(req.file.originalname)){
+        photoReviewStack.push(photoData);
+        imgHistory.push(req.file.originalname)
+        io.emit('photoStack', photoReviewStack);
+        res.json({ success: true });
+    }
+    else{
+        res.json({ success: false });
+    }
 });
 
 io.on('connection', (socket) => {
@@ -69,7 +86,7 @@ io.on('connection', (socket) => {
         if (data.accepted) {
             socket.broadcast.to(data.userId).emit('decision', { 
                 accepted: true,
-                hint: currentWanted.hint
+                hint: currentWanted[0].hint
             });
         } else {
             socket.broadcast.to(data.userId).emit('decision', { accepted: false });
