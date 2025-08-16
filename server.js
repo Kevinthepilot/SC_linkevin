@@ -61,7 +61,7 @@ setInterval(() => {
     currentIndex = (currentIndex + 4) % wantedList.length;
     currentWanted = getRange();
     io.emit('updateWanted', currentWanted);
-}, 5000);
+}, 900000);
 
 // Upload route
 let imgHistory = []
