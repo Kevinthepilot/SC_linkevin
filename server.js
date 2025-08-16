@@ -26,7 +26,7 @@ app.get('/user', (req, res) => {
 
 //Admin
 let photoReviewStack = [];
-app.get('/admin', (req, res) => {
+app.get('/thisisanadminpage', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
@@ -42,20 +42,26 @@ let wantedList = [
     { name: "Trần Ngọc Khánh", img: "/wanted-images/wanted7.jpg", hint: "26105ICHOI123" },
     { name: "Nguyễn Minh Võ Quân", img: "/wanted-images/wanted8.jpg", hint: "4MONK123" },
 ];
+let hints = ["23116ANHOI123","23116ANHOI123","23AN123","23AN123","26105ICHOI123","26105ICHOI123","4MONK123" ,"4MONK123" ]
+let backup_hints = ["23116ANHOI123","23116ANHOI123","23AN123","23AN123","26105ICHOI123","26105ICHOI123","4MONK123" ,"4MONK123" ]
 
 // Đổi đối tượng mỗi 15s
-function getRandomElements(arr, n) {
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, n);
-}
 let currentIndex = 0;
-let currentWanted = getRandomElements(wantedList,4);
+function getRange() {
+    let result = [];
+    for (let i = 0; i < 4; i++) {
+        let idx = (currentIndex + i) % wantedList.length; // wrap with %
+        result.push(wantedList[idx]);
+    }
+    return result;
+}
+let currentWanted = getRange();
 
 setInterval(() => {
-    currentIndex = (currentIndex + 1) % wantedList.length;
-    currentWanted = getRandomElements(wantedList, 4);
+    currentIndex = (currentIndex + 4) % wantedList.length;
+    currentWanted = getRange();
     io.emit('updateWanted', currentWanted);
-}, 15000);
+}, 5000);
 
 // Upload route
 let imgHistory = []
@@ -84,10 +90,13 @@ io.on('connection', (socket) => {
 
     socket.on('adminDecision', (data) => {
         if (data.accepted) {
+            randomId =  Math.floor(Math.random() * hints.length)
             socket.broadcast.to(data.userId).emit('decision', { 
                 accepted: true,
-                hint: currentWanted[0].hint
+                hint: hints[randomId]
             });
+            hints.splice(randomId, 1)
+            if (hints.length == 0) hints = backup_hints
         } else {
             socket.broadcast.to(data.userId).emit('decision', { accepted: false });
         }
